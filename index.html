@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+
+
+<style>
+
+const style = document.createElement("style");
+style.innerHTML ='
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; overflow-y: auto; }
+    #movie-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 20px; }
+    .movie-item { width: 100%; max-width: 200px; text-align: center; cursor: pointer; }
+    .movie-item img { width: 100%; border-radius: 10px; }
+    #movieDetails, #moviePlayer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; display: none; }
+    #movieDetails img { max-width: 80%; border-radius: 10px; }
+    #movieDetails button, #moviePlayer button { margin-top: 10px; padding: 10px; width: 80%; }
+    @media (max-width: 600px) {
+        #movie-list { flex-direction: column; align-items: center; }
+    }
+';
+document.head.appendChild(style);
+
+
+    .body {
+    font-family: Arial, sans-serif;
+    background-color: black;
+    color: white;
+    text-align: center;
+    margin: 0;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Default UPI text style */
+.upi-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: white; /* Default for dark mode */
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* When light mode is active */
+.light-mode .upi-text {
+    color: black; /* Change text color for light mode */
+    background: rgba(255, 255, 255, 0.7);
+}
+
+
+.header {
+    font-size: 28px;
+    padding: 20px;
+    background-color: #111;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-container {
+    flex-grow: 1;
+    margin: 0 20px;
+    position: relative;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+}
+
+.btn {
+    padding: 5px 12px;
+    background: gold;
+    color: black;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: 0.3s;
+    height: 35px;
+}
+
+.btn:hover {
+    background: orange;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px;
+}
+
+@media (max-width: 600px) {
+    .header {
+        flex-direction: column;
+    }
+
+    .search-container {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .button-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+.movie-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 10px;
+}
+
+.movie {
+    cursor: pointer;
+    text-align: center;
+    background: #222;
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.movie:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+}
+
+.movie-container {
+    position: relative;
+    z-index: 5; /* Ensures movies stay below the QR code */
+}
+
+#moviePlayer,
+#donatePopup {
+    position: fixed;
+    z-index: 1000; /* Ensures player and donation popup are always on top */
+}
+
+.movie img {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.movie.hide-thumbnail img {
+    opacity: 0;
+}
+
+
+.movie img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+#moviePlayer {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 80%;
+    height: 60vh;
+    background: black;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
+}
+
+#moviePlayer.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.dark-mode {
+    background: #222;
+    color: white;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #111;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 80%;
+    max-width: 300px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.ott-title {
+    font-size: 36px;
+    font-weight: bold;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #ff4d00, #ffcc00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 3px 3px 10px rgba(255, 77, 0, 0.7);
+    animation: titleAnimation 2s ease-in-out infinite alternate;
+    display: inline-block;
+}
+
+@keyframes titleAnimation {
+    0% {
+        transform: scale(1);
+        letter-spacing: 2px;
+    }
+
+    100% {
+        transform: scale(1.1);
+        letter-spacing: 5px;
+    }
+}
+
+#categoryFilter {
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#categoryFilter:hover {
+    background: gold;
+    color: black;
+}
+
+
+#categoryFilter:focus {
+    outline: none;
+    border-color: orange;
+}
+
+
+.popup-content img {
+    width: 100%;
+    max-width: 200px;
+}
+
+@media (max-width: 600px) {
+    .popup {
+        width: 90%;
+    }
+}
+
+#movieDetails {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 400px;
+    background: #222;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    text-align: center;
+    z-index: 1001;
+}
+
+#movieDetails img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+#movieDetails button {
+    margin-top: 10px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#movieDetails button:hover {
+    background: darkred;
+}
+
+#suggestions {
+    position: absolute;
+    width: 100%;
+    background: black;
+    color: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(255, 215, 0, 0.5);
+    display: none;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.suggestion-item:hover {
+    background: gold;
+    color: black;
+}
+</style>
+
+<div class="header">
+    <span class="ott-title">My OTT</span>
+
+    <div class="search-container">
+        <input type="text" id="searchBox" onkeyup="searchMovies()" placeholder="Search movies..."
+            oninput="showSuggestions(this.value)">
+        <div id="suggestions"></div>
+    </div>
+
+
+    <select id="categoryFilter" onchange="filterMovies()">
+        <option value="all">All</option>
+        <option value="action">Action</option>
+        <option value="horror">Horror</option>
+        <option value="sci-fi">Sci-Fi</option>
+        <option value="family">Family</option>
+        <option value="kids">For Kids</option>
+    </select>
+
+    <div class="button-container">
+        <button class="btn" onclick="toggleDarkMode()">🌙/☀️</button>
+        <button class="btn" onclick="openDonatePopup()">Donate</button>
+    </div>
+</div>
+
+<div id="moviePlayer">
+    <button onclick="closePlayer()"
+        style="float:right; background:red; color:white; border:none; padding:5px 10px; cursor:pointer;">X</button>
+    <iframe id="videoFrame" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<div id="donatePopup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: black; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); text-align: center;">
+    <button onclick="closeDonatePopup()" style="float:right; background:red; color:white; border:none; padding:5px 10px; cursor:pointer;">X</button>
+    <h3>Donate via UPI</h3>
+    <img src="Images/WhatsApp Image 2025-03-26 at 10.08.45 PM.jpeg" alt="UPI QR Code" style="width: 200px; border-radius: 5px;">
+    <p style="color: white; background: gray; padding: 5px; border-radius: 5px;">UPI ID: mshivansh6393@ybl</p>
+</div>
+
+
+<div id="movieDetails">
+    <h3 id="detailTitle"></h3>
+    <img id="detailThumbnail" src="" alt="">
+    <p id="detailDescription"></p>
+    <button onclick="playMovieByPopup()">Play Now</button>
+    <button onclick="closeMovieDetails();">Close</button>
+</div>
+
+
+
+<div class="movie-container" id="movies"></div>
+
+<script>
+    const movies = [
+        { title: "Bhool Bhulaiya 3", category: "horror", thumbnail: "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSg-2WoAZSBhHugCoupjAW89mNBlm--n9bOL9wqh9yMinJmVZSJ", url: "https://drive.google.com/file/d/1BCzimD71g9uxxg4mGscgn09cRL3qfckk/preview" },
+        { title: "Stree 2", category: "horror", thumbnail: "movie2.jpg", url: "https://drive.google.com/file/d/1kfJIVJlD1RejuBDWdUYaUK6GOuKvDoAW/preview" },
+        { title: "Tumbad", category: "horror", thumbnail: "movie2.jpg", url: "https://drive.google.com/file/d/1YlVfOTUOGRC1yb2T-NgvzUnn_v0i8cGr/preview" },
+        { title: "Horror Movie 1", category: "horror", thumbnail: "movie2.jpg", url: "" },
+        { title: "Horror Movie 1", category: "horror", thumbnail: "movie2.jpg", url: "" },
+        { title: "Horror Movie 1", category: "horror", thumbnail: "movie2.jpg", url: "" },
+        { title: "Horror Movie 1", category: "horror", thumbnail: "movie2.jpg", url: "" },
+        { title: "Horror Movie 1", category: "horror", thumbnail: "movie2.jpg", url: "" },
+        { title: "Horror Movie 1", category: "horror", thumbnail: "movie2.jpg", url: "" },
+        { title: "Horror Movie 1", category: "horror", thumbnail: "movie2.jpg", url: "" },
+    
+        { title: "Sci-Fi Movie 1", category: "sci-fi", thumbnail: "movie3.jpg", url: "" },
+        { title: "Sci-Fi Movie 1", category: "sci-fi", thumbnail: "movie3.jpg", url: "" },
+        { title: "Sci-Fi Movie 1", category: "sci-fi", thumbnail: "movie3.jpg", url: "" },
+        { title: "Sci-Fi Movie 1", category: "sci-fi", thumbnail: "movie3.jpg", url: "" },
+        { title: "Sci-Fi Movie 1", category: "sci-fi", thumbnail: "movie3.jpg", url: "" },
+        { title: "Sci-Fi Movie 1", category: "sci-fi", thumbnail: "movie3.jpg", url: "" },
+        { title: "Sci-Fi Movie 1", category: "sci-fi", thumbnail: "movie3.jpg", url: "" },
+        { title: "Sci-Fi Movie 1", category: "sci-fi", thumbnail: "movie3.jpg", url: "" },
+        { title: "Sci-Fi Movie 1", category: "sci-fi", thumbnail: "movie3.jpg", url: "" },
+        { title: "Sci-Fi Movie 1", category: "sci-fi", thumbnail: "movie3.jpg", url: "" },
+        { title: "Sci-Fi Movie 1", category: "sci-fi", thumbnail: "movie3.jpg", url: "" },
+    
+        { title: "Lion King", category: "family, kids", thumbnail: "", url: "https://drive.google.com/file/d/1r2k8Mpk0sdFAVGd5eifLosORgCotIqFj/preview" },
+        { title: "Family Movie 1", category: "family", thumbnail: "", url: "" },
+        { title: "Family Movie 1", category: "family", thumbnail: "", url: "" },
+        { title: "Family Movie 1", category: "family", thumbnail: "", url: "" },
+        { title: "Family Movie 1", category: "family", thumbnail: "", url: "" },
+        { title: "Family Movie 1", category: "family", thumbnail: "", url: "" },
+        { title: "Family Movie 1", category: "family", thumbnail: "", url: "" },
+        { title: "Family Movie 1", category: "family", thumbnail: "", url: "" },
+        { title: "Family Movie 1", category: "family", thumbnail: "", url: "" },
+        { title: "Family Movie 1", category: "family", thumbnail: "", url: "" },
+    
+        { title: "Kids Movie 1", category: "kids", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "kids", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "kids", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "kids", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "kids", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "kids", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "kids", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "kids", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "kids", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "kids", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "kids", thumbnail: "", url: "" },
+    
+        { title: "Animal", category: "action", thumbnail: "https://upload.wikimedia.org/wikipedia/en/thumb/9/90/Animal_%282023_film%29_poster.jpg/220px-Animal_%282023_film%29_poster.jpg", url: "https://drive.google.com/file/d/1_4KivYf8PWC6w6v4youfKlfVXBYJRJvw/preview" },
+        { title: "Indian 2", category: "action", thumbnail: "", url: "https://drive.google.com/file/d/15fdGujv3Ccm2QmSdwsgwz8v8_KFTMzQj/preview" },
+        { title: "Kalki 2898 AD", category: "action", thumbnail: "", url: "https://drive.google.com/file/d/1xL0cSnf995CGaPutUY89QFegoAdYgA42/preview" },
+        { title: "Kids Movie 1", category: "action", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "action", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "action", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "action", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "action", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "action", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "action", thumbnail: "", url: "" },
+        { title: "Kids Movie 1", category: "action", thumbnail: "", url: "" },
+    ];
+    
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+    }
+    
+    function filterMovies() {
+        const selectedCategory = document.getElementById("categoryFilter").value;
+        let container = document.getElementById("movies");
+        container.innerHTML = "";
+        movies.filter(movie => selectedCategory === "all" || movie.category === selectedCategory)
+            .forEach((movie, index) => {
+                let movieDiv = `<div class='movie' id="movie-${index}" onclick="playMovie('${movie.url}', ${index})">
+                                <img src='${movie.thumbnail}' alt='${movie.title}' class="movie-thumbnail">
+                                <p>${movie.title}</p>
+                            </div>`;
+                container.innerHTML += movieDiv;
+            });
+    }
+    
+    function openDonatePopup() {
+        document.getElementById("donatePopup").style.display = "block";
+    }
+    function closeDonatePopup() {
+        document.getElementById("donatePopup").style.display = "none";
+    }
+    
+    function loadMovies() {
+        let container = document.getElementById("movies");
+        container.innerHTML = "";
+        movies.forEach((movie, index) => {
+            let movieDiv = `<div class='movie' onclick="showMovieDetails(${index})">
+                                <img src='${movie.thumbnail}' alt='${movie.title}'>
+                                <p>${movie.title}</p>
+                            </div>`;
+            container.innerHTML += movieDiv;
+        });
+    }
+    
+    
+    function showMovieDetails(index) {
+        const movie = movies[index];
+    
+        document.getElementById("detailTitle").innerText = movie.title;
+        document.getElementById("detailThumbnail").src = movie.thumbnail;
+        document.getElementById("detailDescription").innerText = movie.description;
+    
+        document.getElementById("movieDetails").style.display = "block";
+    
+        // Store the selected movie URL for playing later
+        document.getElementById("movieDetails").dataset.url = movie.url;
+    }
+    
+    function playMovie(url) {
+        let player = document.getElementById("moviePlayer");
+        let videoFrame = document.getElementById("videoFrame");
+    
+        if (!player || !videoFrame) {
+            console.error("Player elements not found in the HTML.");
+            return;
+        }
+    
+        player.classList.add("show");
+        player.style.display = "block";
+    
+        setTimeout(() => {
+            videoFrame.src = url;
+        }, 200);
+    }
+    
+    
+    function closeMovieDetails() {
+        let modal = document.getElementById("movieDetails");
+        if (modal) modal.style.display = "none";
+    }
+    
+    function playMovieByPopup() {
+        let modal = document.getElementById("movieDetails");
+        if (modal) {
+            let url = modal.dataset.url;
+            closeMovieDetails(); // Close the popup
+            window.open(url, "_blank"); // Open movie in new tab
+        }
+    }
+    
+    document.addEventListener("DOMContentLoaded", loadMovies);
+    
+    
+    function openDonatePopup() {
+        document.getElementById("donatePopup").style.display = "block";
+    
+        // Hide thumbnails when donation popup is open
+        document.querySelectorAll(".movie").forEach(movie => {
+            movie.classList.add("hide-thumbnail");
+        });
+    }
+    
+    function closeDonatePopup() {
+        document.getElementById("donatePopup").style.display = "none";
+    
+        // Show thumbnails when donation popup is closed
+        document.querySelectorAll(".movie").forEach(movie => {
+            movie.classList.remove("hide-thumbnail");
+        });
+    }
+    
+    
+    
+    loadMovies();</script>
