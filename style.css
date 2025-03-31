@@ -1,0 +1,292 @@
+#moviePlayer {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 80%;
+    height: 60vh;
+    background: black;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
+}
+
+#moviePlayer.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+
+.body {
+    font-family: Arial, sans-serif;
+    background-color: black;
+    color: white;
+    text-align: center;
+    margin: 0;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Default UPI text style */
+.upi-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: white; /* Default for dark mode */
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* When light mode is active */
+.light-mode .upi-text {
+    color: black; /* Change text color for light mode */
+    background: rgba(255, 255, 255, 0.7);
+}
+
+
+.header {
+    font-size: 28px;
+    padding: 20px;
+    background-color: #111;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-container {
+    flex-grow: 1;
+    margin: 0 20px;
+    position: relative;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+}
+
+.btn {
+    padding: 5px 12px;
+    background: gold;
+    color: black;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: 0.3s;
+    height: 35px;
+}
+
+.btn:hover {
+    background: orange;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px;
+}
+
+@media (max-width: 600px) {
+    .header {
+        flex-direction: column;
+    }
+
+    .search-container {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .button-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+.movie-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 10px;
+}
+
+.movie {
+    cursor: pointer;
+    text-align: center;
+    background: #222;
+    padding: 10px;
+    border-radius: 8px;
+    color: white;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.movie:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+}
+
+.movie-container {
+    position: relative;
+    z-index: 5; /* Ensures movies stay below the QR code */
+}
+
+#donatePopup {
+    position: fixed;
+    z-index: 1000; /* Ensures player and donation popup are always on top */
+}
+
+.movie img {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.movie.hide-thumbnail img {
+    opacity: 0;
+}
+
+
+.movie img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+
+.dark-mode {
+    background: #222;
+    color: white;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #111;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 80%;
+    max-width: 300px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.ott-title {
+    font-size: 36px;
+    font-weight: bold;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #ff4d00, #ffcc00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 3px 3px 10px rgba(255, 77, 0, 0.7);
+    animation: titleAnimation 2s ease-in-out infinite alternate;
+    display: inline-block;
+}
+
+@keyframes titleAnimation {
+    0% {
+        transform: scale(1);
+        letter-spacing: 2px;
+    }
+
+    100% {
+        transform: scale(1.1);
+        letter-spacing: 5px;
+    }
+}
+
+#categoryFilter {
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#categoryFilter:hover {
+    background: gold;
+    color: black;
+}
+
+
+#categoryFilter:focus {
+    outline: none;
+    border-color: orange;
+}
+
+
+.popup-content img {
+    width: 100%;
+    max-width: 200px;
+}
+
+@media (max-width: 600px) {
+    .popup {
+        width: 90%;
+    }
+}
+
+#movieDetails {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 400px;
+    background: #222;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    text-align: center;
+    z-index: 1001;
+}
+
+#movieDetails img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+#movieDetails button {
+    margin-top: 10px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#movieDetails button:hover {
+    background: darkred;
+}
+
+#suggestions {
+    position: absolute;
+    width: 100%;
+    background: black;
+    color: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(255, 215, 0, 0.5);
+    display: none;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.suggestion-item {
+    padding: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.suggestion-item:hover {
+    background: gold;
+    color: black;
+}
