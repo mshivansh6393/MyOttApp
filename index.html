@@ -4,59 +4,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>My Ott App - Watch latest movies for free</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="header">
-    <span class="ott-title">My OTT</span>
+    <div class="header">
+        <span class="ott-title">My OTT</span>
 
-    <div class="search-container">
-        <input type="text" id="searchBox" onkeyup="searchMovies()" placeholder="Search movies..."
-            oninput="showSuggestions(this.value)">
-        <div id="suggestions"></div>
+        <div class="search-container">
+            <input type="text" id="searchBox" placeholder="Search movies...">
+            <button onclick="searchMovies()">🔍</button>
+        </div>
+
+        <div id="results"></div> <!-- Container for search results -->
+        <div id="autocomplete"></div>
+
+
+
+        <div class="button-container">
+            <button class="btn" onclick="toggleDarkMode()">🌙/☀️</button>
+            <button class="btn" onclick="openDonatePopup()">Donate</button>
+        </div>
+    </div>
+
+    <div id="moviePlayer">
+        <button class="close-btn" onclick="closePlayer()">X</button>
+        <iframe id="videoFrame" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+    <div id="donatePopup"
+        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: black; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); text-align: center;">
+        <button onclick="closeDonatePopup()"
+            style="float:right; background:red; color:white; border:none; padding:5px 10px; cursor:pointer;">X</button>
+        <h3>Donate via UPI</h3>
+        <img src="Images/w.jpeg" alt="UPI QR Code" style="width: 200px; border-radius: 5px;">
+        <p style="color: white; background: gray; padding: 5px; border-radius: 5px;">UPI ID: mshivansh6393@ybl</p>
     </div>
 
 
-    <select id="categoryFilter" onchange="filterMovies()">
-        <option value="all">All</option>
-        <option value="action">Action</option>
-        <option value="horror">Horror</option>
-        <option value="sci-fi">Sci-Fi</option>
-        <option value="family">Family</option>
-        <option value="kids">For Kids</option>
-    </select>
-
-    <div class="button-container">
-        <button class="btn" onclick="toggleDarkMode()">🌙/☀️</button>
-        <button class="btn" onclick="openDonatePopup()">Donate</button>
+    <div id="movieDetails">
+        <h3 id="detailTitle"></h3>
+        <img id="detailThumbnail" src="" alt="">
+        <p id="detailDescription"></p>
+        <button onclick="playMovieByPopup()">Play Now</button>
+        <button onclick="closeMovieDetails();">Close</button>
     </div>
-</div>
-
-<div id="moviePlayer">
-    <button class="close-btn" onclick="closePlayer()">X</button>
-    <iframe id="videoFrame" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>
-</div>
-
-<div id="donatePopup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: black; padding: 20px; border-radius: 10px; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); text-align: center;">
-    <button onclick="closeDonatePopup()" style="float:right; background:red; color:white; border:none; padding:5px 10px; cursor:pointer;">X</button>
-    <h3>Donate via UPI</h3>
-    <img src="Images/w.jpeg" alt="UPI QR Code" style="width: 200px; border-radius: 5px;">
-    <p style="color: white; background: gray; padding: 5px; border-radius: 5px;">UPI ID: mshivansh6393@ybl</p>
-</div>
-
-
-<div id="movieDetails">
-    <h3 id="detailTitle"></h3>
-    <img id="detailThumbnail" src="" alt="">
-    <p id="detailDescription"></p>
-    <button onclick="playMovieByPopup()">Play Now</button>
-    <button onclick="closeMovieDetails();">Close</button>
-</div>
 
 
 
-<div class="movie-container" id="movies"></div>
-<script src="script.js"></script>
+
+    <div class="movie-container" id="movies"></div>
+    <script src="script.js"></script>
